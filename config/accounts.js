@@ -15,9 +15,6 @@ export default [
     platform: "Meta",
     // Ad account ID from Meta Ads Manager, with or without the "act_" prefix.
     id: "act_862272646134746",
-    account: "Ready Health Account",
-    platform: "Meta",
-    id: "act_1470178097849809",
     // Optional: use a different token for this account. Defaults to META_ACCESS_TOKEN.
     // tokenEnv: "",
   },
@@ -34,7 +31,7 @@ export default [
   },
 
   {
-    client: "Ready Health Account",
+    client: "Ready RX",
     account: "Ready Health Account",
     platform: "Meta",
     id: "act_1470178097849809",
