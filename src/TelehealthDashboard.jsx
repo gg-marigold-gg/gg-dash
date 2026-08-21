@@ -831,7 +831,7 @@ export default function TelehealthDashboard() {
         <header className="mast">
           <div>
             <div className="eyebrow">Paid media · telehealth portfolio</div>
-            <h1>Performance Console</h1>
+            <h1>Ghost Growth Dashboard</h1>
             <div className="sub">
               {start} → {end} · compared with {prevStart} → {prevEnd}
             </div>
