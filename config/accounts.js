@@ -21,19 +21,19 @@ export default [
 
   // ---- Google Ads ----
   {
-    client: "Vireo Weight Care",
-    account: "Vireo · Google Search",
+    client: "Pending",
+    account: "Pending",
     platform: "Google",
     // Customer ID as shown in Google Ads, dashes optional.
-    id: "123-456-7890",
+    id: "NA",
     // Your manager (MCC) account ID, if this account sits under one.
-    loginCustomerId: "987-654-3210",
+    loginCustomerId: "NA",
   },
 
   {
-    client: "Nomad Men's Health",
-    account: "Nomad · Meta Acquisition",
+    client: "Ready Health Account",
+    account: "Ready Health Account",
     platform: "Meta",
-    id: "act_2233445566",
+    id: "act_1470178097849809",
   },
 ];
