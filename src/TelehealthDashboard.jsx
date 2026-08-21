@@ -92,7 +92,17 @@ const TABLE_KEYS = [
 const DATE_PRESETS = [7, 14, 30, 90];
 
 /** Which dimensions you can group the table by. */
-const GROUP_OPTIONS = ["client", "account", "platform", "campaign"];
+const GROUP_OPTIONS = ["client", "account", "platform", "campaign", "adset", "ad"];
+
+/** Display names for each grouping dimension. */
+const GROUP_LABELS = {
+  client: { one: "Client", many: "clients" },
+  account: { one: "Ad account", many: "ad accounts" },
+  platform: { one: "Platform", many: "platforms" },
+  campaign: { one: "Campaign", many: "campaigns" },
+  adset: { one: "Ad set", many: "ad sets" },
+  ad: { one: "Ad", many: "ads" },
+};
 
 /* ══════════════════════════════════════════════════════════════════ */
 /*   Below this line is the machinery. Edit only if you want to.       */
@@ -271,6 +281,11 @@ ${t.fontUrl ? `@import url('${t.fontUrl}');` : ""}
 .tvd .twist{
   border:0;background:transparent;padding:0 7px 0 0;color:var(--muted);font-size:10px;width:20px;
 }
+.tvd a.adlink{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);}
+.tvd a.adlink:hover{color:var(--signal);border-bottom-color:var(--signal);}
+.tvd a.adlink .ext{font-size:9px;margin-left:4px;color:var(--muted);vertical-align:2px;}
+.tvd a.adlink:hover .ext{color:var(--signal);}
+.tvd tr.child a.adlink{color:var(--muted);}
 .tvd .sharebar{display:block;height:3px;background:var(--signal);opacity:.5;margin-top:4px;border-radius:1px;}
 .tvd .cell-neg{color:var(--alert);}
 
@@ -469,7 +484,6 @@ const CLIENTS = [
       { name: "Ghost Growth · TikTok", platform: "TikTok", campaigns: ["Creator Whitelist"] },
     ],
   },
-  
 ];
 
 const PLAT = {
@@ -498,8 +512,12 @@ function makeSample(days = 120) {
   for (const c of CLIENTS) {
     for (const acct of c.accounts) {
       const p = PLAT[acct.platform];
+      const SETS = ["Broad 25-54", "Lookalike 3%", "Retarget 30d"];
+      const ADS = ["Static — Testimonial", "Video — 15s Hook", "Carousel — Before/After"];
       for (const camp of acct.campaigns) {
-        const base = 180 + rnd() * 520;
+      for (let si = 0; si < 2; si++) {
+      for (let ai = 0; ai < 2; ai++) {
+        const base = 45 + rnd() * 130;
         const trend = 0.75 + rnd() * 0.7;
         for (let d = 0; d < days; d++) {
           const day = addDays(start, d);
@@ -521,6 +539,14 @@ function makeSample(days = 120) {
             account: acct.name,
             platform: acct.platform,
             campaign: camp,
+            adset: `${camp} · ${SETS[si]}`,
+            ad: `${camp} · ${ADS[ai]}`,
+            // Sample rows use invented IDs, so these links land in Ads Manager
+            // without a valid selection. Live data produces real targets.
+            url:
+              acct.platform === "Meta"
+                ? `https://business.facebook.com/adsmanager/manage/ads?act=00000000&selected_ad_ids=${1000 + i}`
+                : null,
             spend: +spend.toFixed(2),
             impressions: Math.round(impressions),
             clicks: Math.round(clicks),
@@ -530,6 +556,8 @@ function makeSample(days = 120) {
             revenue: +revenue.toFixed(2),
           });
         }
+      }
+      }
       }
     }
   }
@@ -546,6 +574,8 @@ const FIELDS = [
   { key: "account", label: "Ad account", req: false, aliases: ["account", "ad_account", "adaccount", "account_name", "ad_account_name"] },
   { key: "platform", label: "Platform", req: false, aliases: ["platform", "channel", "source", "publisher", "network"] },
   { key: "campaign", label: "Campaign", req: false, aliases: ["campaign", "campaign_name", "campaignname"] },
+  { key: "adset", label: "Ad set", req: false, aliases: ["adset", "ad_set", "adset_name", "ad_group", "adgroup", "ad_group_name"] },
+  { key: "ad", label: "Ad", req: false, aliases: ["ad", "ad_name", "adname", "creative", "creative_name"] },
   { key: "spend", label: "Spend", req: true, aliases: ["spend", "cost", "amount_spent", "amountspent", "cost_micros"] },
   { key: "impressions", label: "Impressions", req: false, aliases: ["impressions", "impr", "impressions_total"] },
   { key: "clicks", label: "Clicks", req: false, aliases: ["clicks", "link_clicks", "linkclicks", "clicks_all"] },
@@ -554,7 +584,7 @@ const FIELDS = [
   { key: "orders", label: "Orders", req: false, aliases: ["orders", "purchases", "subscriptions", "patients", "sales"] },
   { key: "revenue", label: "Revenue", req: false, aliases: ["revenue", "conversion_value", "purchase_value", "value", "sales_amount"] },
 ];
-const TEXT_FIELDS = ["date", "client", "account", "platform", "campaign"];
+const TEXT_FIELDS = ["date", "client", "account", "platform", "campaign", "adset", "ad"];
 
 const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, "_");
 function autoMap(headers) {
@@ -575,13 +605,15 @@ function applyMap(raw, map) {
     const date = parseDate(r[map.date]);
     if (!date) return;
     const row = { id: i, date };
-    for (const k of ["client", "account", "platform", "campaign"]) {
+    for (const k of ["client", "account", "platform", "campaign", "adset", "ad"]) {
       row[k] = map[k] && r[map[k]] != null && String(r[map[k]]).trim() !== "" ? String(r[map[k]]).trim() : "";
     }
     if (!row.client) row.client = "Unassigned";
     if (!row.account) row.account = row.client;
     if (!row.platform) row.platform = "Unspecified";
     if (!row.campaign) row.campaign = "—";
+    if (!row.adset) row.adset = "—";
+    if (!row.ad) row.ad = "—";
     for (const k of BASE) row[k] = map[k] ? parseNum(r[map[k]]) : 0;
     out.push(row);
   });
@@ -793,7 +825,10 @@ export default function TelehealthDashboard() {
     (!clients.length || clients.includes(r.client)) &&
     (!accounts.length || accounts.includes(r.account)) &&
     (!platforms.length || platforms.includes(r.platform)) &&
-    (!q || (r.campaign + " " + r.account + " " + r.client).toLowerCase().includes(q.toLowerCase()));
+    (!q ||
+      (r.campaign + " " + r.adset + " " + r.ad + " " + r.account + " " + r.client)
+        .toLowerCase()
+        .includes(q.toLowerCase()));
 
   const filtered = useMemo(
     () => rows.filter((r) => r.date >= start && r.date <= end && matchesDims(r)),
@@ -824,7 +859,15 @@ export default function TelehealthDashboard() {
   const sparkFor = (key) => series.map((s) => (isFinite(s[key]) && s[key] != null ? s[key] : 0));
 
   /* ---- grouped table ---- */
-  const CHILD = { client: "account", account: "campaign", platform: "client", campaign: "account" };
+  // What each group expands into. Ads are the bottom, so they show accounts.
+  const CHILD = {
+    client: "account",
+    account: "campaign",
+    platform: "client",
+    campaign: "adset",
+    adset: "ad",
+    ad: "account",
+  };
   const grouped = useMemo(() => {
     const g = new Map();
     for (const r of filtered) {
@@ -841,9 +884,19 @@ export default function TelehealthDashboard() {
         cm.get(ck).push(r);
       }
       const children = Array.from(cm.entries())
-        .map(([ck, crs]) => ({ key: ck, ...derive(sum(crs)) }))
+        .map(([ck, crs]) => ({
+          key: ck,
+          // Only ad-level rows link out; anything else has no single target.
+          url: childKey === "ad" ? crs.find((r) => r.url)?.url || null : null,
+          ...derive(sum(crs)),
+        }))
         .sort((a, b) => b.spend - a.spend);
-      return { key: grp.key, children, ...derive(sum(grp.rows)) };
+      return {
+        key: grp.key,
+        children,
+        url: groupBy === "ad" ? grp.rows.find((r) => r.url)?.url || null : null,
+        ...derive(sum(grp.rows)),
+      };
     });
     const dir = sort.dir === "asc" ? 1 : -1;
     out.sort((a, b) => {
@@ -1023,7 +1076,7 @@ export default function TelehealthDashboard() {
           <MultiSelect label="Platform" options={platformOpts} selected={platforms} onChange={setPlatforms} />
           <input
             className="search"
-            placeholder="Search campaigns…"
+            placeholder="Search campaigns, ad sets, ads…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -1170,7 +1223,7 @@ export default function TelehealthDashboard() {
                 <div className="seg">
                   {GROUP_OPTIONS.map((g) => (
                     <button key={g} aria-pressed={groupBy === g} onClick={() => { setGroupBy(g); setOpenRows([]); }}>
-                      {g === "account" ? "Ad account" : g[0].toUpperCase() + g.slice(1)}
+                      {GROUP_LABELS[g]?.one || g}
                     </button>
                   ))}
                 </div>
@@ -1180,7 +1233,7 @@ export default function TelehealthDashboard() {
                   <thead>
                     <tr>
                       <th onClick={() => toggleSort("spend")}>
-                        {groupBy === "account" ? "Ad account" : groupBy[0].toUpperCase() + groupBy.slice(1)}
+                        {GROUP_LABELS[groupBy]?.one || groupBy}
                       </th>
                       {COLS.map((c) => (
                         <th key={c.key} onClick={() => toggleSort(c.key)} title={`Sort by ${c.label}`}>
@@ -1200,14 +1253,21 @@ export default function TelehealthDashboard() {
                               <button
                                 className="twist"
                                 aria-expanded={open}
-                                aria-label={`${open ? "Hide" : "Show"} ${CHILD[groupBy]}s for ${g.key}`}
+                                aria-label={`${open ? "Hide" : "Show"} ${GROUP_LABELS[CHILD[groupBy]]?.many || "rows"} for ${g.key}`}
                                 onClick={() =>
                                   setOpenRows((o) => (o.includes(g.key) ? o.filter((k) => k !== g.key) : [...o, g.key]))
                                 }
                               >
                                 {open ? "▼" : "▶"}
                               </button>
-                              {g.key}
+                              {g.url ? (
+                                <a className="adlink" href={g.url} target="_blank" rel="noopener noreferrer">
+                                  {g.key}
+                                  <span className="ext" aria-hidden="true">↗</span>
+                                </a>
+                              ) : (
+                                g.key
+                              )}
                               <span
                                 className="sharebar"
                                 style={{ width: maxSpend ? `${Math.max(2, (g.spend / maxSpend) * 100)}%` : 0 }}
@@ -1220,7 +1280,16 @@ export default function TelehealthDashboard() {
                           {open &&
                             g.children.map((ch) => (
                               <tr className="child" key={g.key + "::" + ch.key}>
-                                <td>{ch.key}</td>
+                                <td>
+                                  {ch.url ? (
+                                    <a className="adlink" href={ch.url} target="_blank" rel="noopener noreferrer">
+                                      {ch.key}
+                                      <span className="ext" aria-hidden="true">↗</span>
+                                    </a>
+                                  ) : (
+                                    ch.key
+                                  )}
+                                </td>
                                 {COLS.map((c) => (
                                   <td key={c.key}>{c.fmt(ch[c.key])}</td>
                                 ))}
@@ -1230,7 +1299,7 @@ export default function TelehealthDashboard() {
                       );
                     })}
                     <tr className="total">
-                      <td>Total · {grouped.length} {groupBy === "account" ? "accounts" : groupBy + "s"}</td>
+                      <td>Total · {grouped.length} {GROUP_LABELS[groupBy]?.many || groupBy}</td>
                       {COLS.map((c) => (
                         <td key={c.key}>{c.fmt(totals[c.key])}</td>
                       ))}
