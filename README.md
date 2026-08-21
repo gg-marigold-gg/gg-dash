@@ -103,3 +103,4 @@ plus a date range, returns rows shaped
 then register it in the `FETCHERS` map in `api/data.js`. TikTok, LinkedIn, and
 Bing all fit this pattern.
 # gg-dash
+# gg-dash
