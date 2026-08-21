@@ -1079,50 +1079,7 @@ export default function TelehealthDashboard() {
           </>
         )}
 
-        {/* Data source */}
-        <section className="panel">
-          <div className="panel-head">
-            <div className="panel-title">Data source</div>
-          </div>
-          <div className="panel-body">
-            <div className="src">
-              <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>Load a CSV</button>
-              <button className="btn" onClick={useSample}>Use sample data</button>
-              <input ref={fileRef} type="file" accept=".csv,text/csv" onChange={onFile} style={{ display: "none" }} />
-              <span className="note">
-                One row per day per campaign works best. Columns are matched by name — correct any of them below.
-              </span>
-            </div>
-
-            {csvError && <div className="warn">{csvError}</div>}
-
-            {rawCsv && map && (
-              <div className="map-grid">
-                {FIELDS.map((f) => (
-                  <div className="map-item" key={f.key} data-req={f.req}>
-                    <label htmlFor={"map-" + f.key}>
-                      {f.label}
-                      {f.req ? " ·  required" : ""}
-                    </label>
-                    <select
-                      id={"map-" + f.key}
-                      value={map[f.key] || ""}
-                      data-empty={!map[f.key]}
-                      onChange={(e) => remap(f.key, e.target.value)}
-                    >
-                      <option value="">
-                        {TEXT_FIELDS.includes(f.key) ? "Not in file" : "Not in file (counts as 0)"}
-                      </option>
-                      {rawCsv.headers.map((h) => (
-                        <option key={h} value={h}>{h}</option>
-                      ))}
-                    </select>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
+        
       </div>
     </div>
   );
