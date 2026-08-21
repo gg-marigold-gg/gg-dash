@@ -349,13 +349,13 @@ const TREND_MODES = {
 
 const CLIENTS = [
   {
-    name: "Vireo Weight Care",
+    name: "Ghost Growth",
     scale: 1.9,
     aov: 249,
     accounts: [
-      { name: "Vireo · Meta Prospecting", platform: "Meta", campaigns: ["GLP-1 Broad", "UGC Testimonials", "LAL 2% Purchasers"] },
-      { name: "Vireo · Google Search", platform: "Google", campaigns: ["Brand", "Semaglutide Non-Brand"] },
-      { name: "Vireo · TikTok", platform: "TikTok", campaigns: ["Creator Whitelist"] },
+      { name: "Ghost Growth · Meta Prospecting", platform: "Meta", campaigns: ["GLP-1 Broad", "UGC Testimonials", "LAL 2% Purchasers"] },
+      { name: "Ghost Growth · Google Search", platform: "Google", campaigns: ["Brand", "Semaglutide Non-Brand"] },
+      { name: "Ghost Growth · TikTok", platform: "TikTok", campaigns: ["Creator Whitelist"] },
     ],
   },
   
