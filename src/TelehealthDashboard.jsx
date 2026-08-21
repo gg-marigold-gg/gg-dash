@@ -686,7 +686,19 @@ export default function TelehealthDashboard() {
       const res = await fetch("/api/data" + (force ? "?refresh=1&t=" + Date.now() : ""));
       if (!res.ok) throw new Error("HTTP " + res.status);
       const payload = await res.json();
-      if (!payload.rows?.length) throw new Error("no rows returned");
+
+      if (!payload.rows?.length) {
+        // The API answered but sent nothing. Usually every account failed
+        // auth. Keep the errors so the banner can explain why, rather than
+        // silently showing sample data as if it were real.
+        setSync({ state: "off", at: null, errors: payload.errors || [] });
+        setSource(
+          payload.accountsRequested
+            ? `Sample data — 0 of ${payload.accountsRequested} accounts returned rows`
+            : "Sample data — no accounts configured"
+        );
+        return;
+      }
 
       setRows(payload.rows);
       setRawCsv(null);
@@ -697,9 +709,14 @@ export default function TelehealthDashboard() {
           payload.accountsFailed}/${payload.accountsRequested} accounts`
       );
     } catch (err) {
-      // No API deployed yet, or every account failed. Sample data keeps the
-      // page usable and the CSV importer still works.
-      setSync({ state: "off", at: null, errors: [] });
+      // The API is unreachable entirely — not deployed, or the function
+      // crashed before it could answer.
+      setSync({
+        state: "off",
+        at: null,
+        errors: [{ account: "/api/data", client: "", message: String(err.message || err) }],
+      });
+      setSource("Sample data — could not reach /api/data");
     }
   };
 
@@ -1034,7 +1051,9 @@ export default function TelehealthDashboard() {
             <strong>
               {sync.errors.length} account{sync.errors.length > 1 ? "s" : ""} did not sync.
             </strong>{" "}
-            Everything below excludes them, so totals are short until they're fixed.
+            {sync.state === "off"
+              ? "Nothing came back, so the figures below are sample data — not your clients'."
+              : "Everything below excludes them, so totals are short until they're fixed."}
             <ul>
               {sync.errors.map((e, i) => (
                 <li key={i}>
@@ -1222,10 +1241,6 @@ export default function TelehealthDashboard() {
             </section>
           </>
         )}
-
-       
-
-           
       </div>
     </div>
   );
