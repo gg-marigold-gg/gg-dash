@@ -19,7 +19,35 @@ export default [
     // tokenEnv: "",
   },
 
-  // ---- Google Ads ----
+  {
+    client: "Ready RX",
+    account: "Ready Health Account",
+    platform: "Meta",
+    id: "act_1470178097849809",
+  },
+
+   {
+    client: "Embody",
+    account: "CLG_1795 - hunts7474906 - Platinum",
+    platform: "Meta",
+    id: "act_2150657852409047",
+  },
+
+   {
+    client: "Embody",
+    account: "CLG_0947- hunts7474906 Morris - Platinum",
+    platform: "Meta",
+    id: "act_1533865141093828",
+  },
+
+   {
+    client: "Embody",
+    account: "CLG_0153 - hunts7474906 Morris - Platinum 3",
+    platform: "Meta",
+    id: "act_694106073746858",
+  },
+
+    // ---- Google Ads ----
   {
     client: "Pending",
     account: "Pending",
@@ -30,10 +58,5 @@ export default [
     loginCustomerId: "NA",
   },
 
-  {
-    client: "Ready RX",
-    account: "Ready Health Account",
-    platform: "Meta",
-    id: "act_1470178097849809",
-  },
+  
 ];
