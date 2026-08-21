@@ -102,3 +102,4 @@ plus a date range, returns rows shaped
 `{date, client, account, platform, campaign, spend, impressions, clicks, leads, consults, orders, revenue}` —
 then register it in the `FETCHERS` map in `api/data.js`. TikTok, LinkedIn, and
 Bing all fit this pattern.
+# gg-dash
