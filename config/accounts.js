@@ -67,6 +67,13 @@ export default [
     platform: "Meta",
     id: "act_1682307546340503",
   },
+
+   {
+    client: "Effecty",
+    account: "Effecty LLC 1",
+    platform: "Meta",
+    id: "act_615801390984462",
+  },
     // ---- Google Ads ----
   {
     client: "Pending",
