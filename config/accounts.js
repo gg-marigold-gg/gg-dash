@@ -10,7 +10,7 @@
 export default [
   // ---- Meta ----
   {
-    client: "1066 - 70209 - readyrx - TN",
+    client: "Ready RX",
     account: "1066 - 70209 - readyrx - TN",
     platform: "Meta",
     // Ad account ID from Meta Ads Manager, with or without the "act_" prefix.
