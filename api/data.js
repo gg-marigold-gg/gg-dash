@@ -14,10 +14,42 @@
  */
 
 import accounts from "../config/accounts.js";
-import { fetchMeta } from "../lib/meta.js";
+import { fetchMeta, metaStats } from "../lib/meta.js";
 import { fetchGoogle } from "../lib/google.js";
 
 const FETCHERS = { Meta: fetchMeta, Google: fetchGoogle };
+
+/**
+ * How many accounts to pull at the same time. Meta rate-limits per app, so
+ * firing every account at once is the fastest way to trip code 4. Two is a
+ * safe default; raise it only if you are well under quota.
+ */
+const CONCURRENCY = Math.max(1, parseInt(process.env.FETCH_CONCURRENCY || "2", 10));
+
+/**
+ * Vercel kills a function at this many seconds. A throttled ad-level pull can
+ * take a while, so give it room. Hobby plans cap lower than Pro — if you see
+ * 504s, reduce LOOKBACK_DAYS or META_LEVEL rather than raising this.
+ */
+export const maxDuration = 60;
+
+/** Run jobs with a fixed concurrency limit, never rejecting. */
+async function pool(items, limit, fn) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const i = cursor++;
+      try {
+        results[i] = { status: "fulfilled", value: await fn(items[i]) };
+      } catch (reason) {
+        results[i] = { status: "rejected", reason };
+      }
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
 
 const iso = (d) => d.toISOString().slice(0, 10);
 
@@ -28,13 +60,11 @@ export default async function handler(req, res) {
   const until = new Date();
   const since = new Date(until.getTime() - (lookback - 1) * 86400000);
 
-  const jobs = accounts.map(async (acct) => {
+  const settled = await pool(accounts, CONCURRENCY, (acct) => {
     const fetcher = FETCHERS[acct.platform];
     if (!fetcher) throw new Error(`No connector for platform "${acct.platform}"`);
     return fetcher(acct, iso(since), iso(until));
   });
-
-  const settled = await Promise.allSettled(jobs);
 
   const rows = [];
   const errors = [];
@@ -69,5 +99,8 @@ export default async function handler(req, res) {
     accountsRequested: accounts.length,
     accountsFailed: errors.length,
     errors,
+    // Useful when tuning rate limits: how many calls were made, how many had
+    // to be retried, and how long was spent deliberately waiting.
+    meta: metaStats(),
   });
 }
