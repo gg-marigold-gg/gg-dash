@@ -10,13 +10,13 @@
 export default [
   // ---- Meta ----
   {
-    client: "Vireo Weight Care",
-    account: "Vireo · Meta Prospecting",
+    client: "1066 - 70209 - readyrx - TN",
+    account: "1066 - 70209 - readyrx - TN",
     platform: "Meta",
     // Ad account ID from Meta Ads Manager, with or without the "act_" prefix.
-    id: "act_1234567890",
+    id: "act_862272646134746",
     // Optional: use a different token for this account. Defaults to META_ACCESS_TOKEN.
-    // tokenEnv: "META_TOKEN_VIREO",
+    // tokenEnv: "",
   },
 
   // ---- Google Ads ----
