@@ -47,6 +47,26 @@ export default [
     id: "act_694106073746858",
   },
 
+   {
+    client: "Carebox",
+    account: "CLG_1378 - ays5028 - Platinum",
+    platform: "Meta",
+    id: "act_1331753735100138",
+  },
+
+   {
+    client: "Carebox",
+    account: "Adz CLK 0010 - ays5028 - Platinum",
+    platform: "Meta",
+    id: "act_3114791885379113",
+  },
+
+   {
+    client: "Snag RX",
+    account: "Adz CLK 0006 - hunts7474906 - Platinum 14",
+    platform: "Meta",
+    id: "act_1682307546340503",
+  },
     // ---- Google Ads ----
   {
     client: "Pending",
