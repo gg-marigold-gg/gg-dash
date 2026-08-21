@@ -11,28 +11,111 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-/* ------------------------------------------------------------------ */
-/*  Design tokens + styles                                             */
-/* ------------------------------------------------------------------ */
+/* ══════════════════════════════════════════════════════════════════ */
+/*                                                                     */
+/*   CUSTOMIZE HERE — everything in this block is safe to edit.        */
+/*   You do not need to touch anything below the marked line.          */
+/*                                                                     */
+/* ══════════════════════════════════════════════════════════════════ */
 
-const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/** Text at the top of the page. */
+const BRAND = {
+  eyebrow: "Paid media · telehealth portfolio",
+  title: "Ghost Growth Dashboard",
+};
+
+/** Colours and fonts. Change a hex here and it applies everywhere. */
+const THEME = {
+  ground: "#E7ECEF", // page background
+  panel: "#FBFCFD", // cards and table background
+  ink: "#10222E", // main text
+  muted: "#5C7080", // labels, secondary text
+  line: "#CBD5DB", // borders
+  lineSoft: "#E4E9EC", // faint dividers, grid lines
+  accent: "#0F7B8A", // bars, sparklines, active filters
+  accentSoft: "#DEEFF1", // background of active filter chips
+  accent2: "#5B3E72", // the line drawn over the bars
+  good: "#2F7D5D", // positive change
+  alert: "#B3453A", // negative change, errors
+
+  fontBody: "'IBM Plex Sans', system-ui, sans-serif",
+  fontDisplay: "'IBM Plex Sans Condensed', system-ui, sans-serif",
+  fontMono: "'IBM Plex Mono', ui-monospace, monospace",
+  // Swap this for any Google Fonts URL, or set to "" to use system fonts.
+  fontUrl:
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap",
+};
+
+/**
+ * Rename the funnel stages to match what your clients actually measure.
+ * Only the display text changes — the data keys stay the same.
+ */
+const LABELS = {
+  spend: "Spend",
+  impressions: "Impr",
+  clicks: "Clicks",
+  ctr: "CTR",
+  cpc: "CPC",
+  leads: "Leads",
+  cpl: "CPL",
+  consults: "Consults",
+  showRate: "Show rate",
+  orders: "Orders",
+  cpa: "CPA",
+  cpm: "CPM",
+  cvr: "CVR",
+  aov: "AOV",
+  revenue: "Revenue",
+  roas: "ROAS",
+};
+
+/** Which six metrics appear in the strip at the top, left to right. */
+const VITALS_KEYS = ["spend", "revenue", "roas", "leads", "cpa", "ctr"];
+
+/** Which columns appear in the breakdown table, and in what order. */
+const TABLE_KEYS = [
+  "spend",
+  "impressions",
+  "clicks",
+  "ctr",
+  "cpc",
+  "leads",
+  "cpl",
+  "consults",
+  "orders",
+  "cpa",
+  "revenue",
+  "roas",
+];
+
+/** The date range buttons, in days. */
+const DATE_PRESETS = [7, 14, 30, 90];
+
+/** Which dimensions you can group the table by. */
+const GROUP_OPTIONS = ["client", "account", "platform", "campaign"];
+
+/* ══════════════════════════════════════════════════════════════════ */
+/*   Below this line is the machinery. Edit only if you want to.       */
+/* ══════════════════════════════════════════════════════════════════ */
+
+const CSS = (t, vitals = 6) => `
+${t.fontUrl ? `@import url('${t.fontUrl}');` : ""}
 
 .tvd {
-  --ground:#E7ECEF;
-  --panel:#FBFCFD;
-  --ink:#10222E;
-  --muted:#5C7080;
-  --line:#CBD5DB;
-  --line-soft:#E4E9EC;
-  --signal:#0F7B8A;
-  --signal-soft:#DEEFF1;
-  --plum:#5B3E72;
-  --good:#2F7D5D;
-  --alert:#B3453A;
-  --display:'IBM Plex Sans Condensed', system-ui, sans-serif;
-  --body:'IBM Plex Sans', system-ui, sans-serif;
-  --mono:'IBM Plex Mono', ui-monospace, monospace;
+  --ground:${t.ground};
+  --panel:${t.panel};
+  --ink:${t.ink};
+  --muted:${t.muted};
+  --line:${t.line};
+  --line-soft:${t.lineSoft};
+  --signal:${t.accent};
+  --signal-soft:${t.accentSoft};
+  --plum:${t.accent2};
+  --good:${t.good};
+  --alert:${t.alert};
+  --display:${t.fontDisplay};
+  --body:${t.fontBody};
+  --mono:${t.fontMono};
 
   background:var(--ground);
   color:var(--ink);
@@ -116,13 +199,20 @@ const CSS = `
   font-size:12.5px;font-family:var(--body);width:186px;color:var(--ink);
 }
 .tvd .search::placeholder{color:#8FA1AC;}
+.tvd .dates{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.tvd .dates input{
+  background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:5px 8px;
+  font-family:var(--mono);font-size:12px;color:var(--ink);color-scheme:light;
+}
+.tvd .dates input:hover{border-color:var(--signal);}
+.tvd .dates .to{font-size:11.5px;color:var(--muted);}
 .tvd .spacer{flex:1;}
 .tvd .rail-note{font-size:12px;color:var(--muted);font-family:var(--mono);}
 
 /* --- vitals strip (signature) --- */
 .tvd .vitals{
   margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:2px;
-  display:grid;grid-template-columns:repeat(6,1fr);position:relative;overflow:hidden;
+  display:grid;grid-template-columns:repeat(${vitals},1fr);position:relative;overflow:hidden;
 }
 .tvd .vitals::before{
   content:"";position:absolute;top:0;left:0;right:0;height:5px;
@@ -286,6 +376,19 @@ const weekOf = (dstr) => {
 };
 const uniq = (arr) => Array.from(new Set(arr)).sort();
 
+/**
+ * Calendar month containing `anchor`, offset by `delta` months.
+ * monthRange("2026-08-21", 0)  -> Aug 1 to Aug 21 (month to date)
+ * monthRange("2026-08-21", -1) -> Jul 1 to Jul 31 (whole month)
+ */
+function monthRange(anchor, delta) {
+  const a = new Date(anchor + "T00:00:00");
+  const first = new Date(a.getFullYear(), a.getMonth() + delta, 1);
+  const last = new Date(a.getFullYear(), a.getMonth() + delta + 1, 0);
+  const clamp = (d) => (iso(d) > anchor ? anchor : iso(d));
+  return { from: iso(first), to: clamp(last) };
+}
+
 /* ------------------------------------------------------------------ */
 /*  Metric definitions                                                 */
 /* ------------------------------------------------------------------ */
@@ -313,34 +416,42 @@ function sum(rows) {
   return t;
 }
 
-const COLS = [
-  { key: "spend", label: "Spend", fmt: usd, share: true },
-  { key: "impressions", label: "Impr", fmt: num },
-  { key: "clicks", label: "Clicks", fmt: num },
-  { key: "ctr", label: "CTR", fmt: pct },
-  { key: "cpc", label: "CPC", fmt: usd2, lowerBetter: true },
-  { key: "leads", label: "Leads", fmt: num },
-  { key: "cpl", label: "CPL", fmt: usd2, lowerBetter: true },
-  { key: "consults", label: "Consults", fmt: num },
-  { key: "orders", label: "Orders", fmt: num },
-  { key: "cpa", label: "CPA", fmt: usd2, lowerBetter: true },
-  { key: "revenue", label: "Revenue", fmt: usd },
-  { key: "roas", label: "ROAS", fmt: x2 },
-];
+/**
+ * Every metric the dashboard knows how to display. VITALS_KEYS and TABLE_KEYS
+ * at the top of the file pick from this catalog — add an entry here if you
+ * want a metric that isn't listed, then reference its key up there.
+ */
+const METRICS = {
+  spend: { fmt: usd },
+  impressions: { fmt: num },
+  clicks: { fmt: num },
+  ctr: { fmt: pct },
+  cpc: { fmt: usd2, lowerBetter: true },
+  cpm: { fmt: usd2, lowerBetter: true },
+  cvr: { fmt: pct },
+  leads: { fmt: num },
+  cpl: { fmt: usd2, lowerBetter: true },
+  consults: { fmt: num },
+  showRate: { fmt: pct },
+  orders: { fmt: num },
+  cpa: { fmt: usd2, lowerBetter: true },
+  aov: { fmt: usd2 },
+  revenue: { fmt: usd },
+  roas: { fmt: x2 },
+};
 
-const VITALS = [
-  { key: "spend", label: "Spend", fmt: usd },
-  { key: "revenue", label: "Revenue", fmt: usd },
-  { key: "roas", label: "ROAS", fmt: x2 },
-  { key: "leads", label: "Leads", fmt: num },
-  { key: "cpa", label: "CPA", fmt: usd2, lowerBetter: true },
-  { key: "ctr", label: "CTR", fmt: pct },
-];
+const build = (keys) =>
+  keys
+    .filter((k) => METRICS[k])
+    .map((k) => ({ key: k, label: LABELS[k] || k, ...METRICS[k] }));
+
+const COLS = build(TABLE_KEYS);
+const VITALS = build(VITALS_KEYS).slice(0, 6);
 
 const TREND_MODES = {
-  revenue: { bar: "spend", line: "revenue", barLabel: "Spend", lineLabel: "Revenue", lineFmt: usd },
-  leads: { bar: "leads", line: "cpl", barLabel: "Leads", lineLabel: "CPL", lineFmt: usd2 },
-  orders: { bar: "orders", line: "cpa", barLabel: "Orders", lineLabel: "CPA", lineFmt: usd2 },
+  revenue: { bar: "spend", line: "revenue", barLabel: LABELS.spend, lineLabel: LABELS.revenue, lineFmt: usd },
+  leads: { bar: "leads", line: "cpl", barLabel: LABELS.leads, lineLabel: LABELS.cpl, lineFmt: usd2 },
+  orders: { bar: "orders", line: "cpa", barLabel: LABELS.orders, lineLabel: LABELS.cpa, lineFmt: usd2 },
 };
 
 /* ------------------------------------------------------------------ */
@@ -597,6 +708,8 @@ export default function TelehealthDashboard() {
   }, []);
 
   const [days, setDays] = useState(30);
+  // null = using a preset. {from, to} = using an explicit range.
+  const [custom, setCustom] = useState(null);
   const [clients, setClients] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [platforms, setPlatforms] = useState([]);
@@ -608,18 +721,43 @@ export default function TelehealthDashboard() {
   const [openRows, setOpenRows] = useState([]);
 
   /* ---- date window ---- */
-  const { start, end, prevStart, prevEnd, maxDate } = useMemo(() => {
+  const { start, end, prevStart, prevEnd, minDate, maxDate, lastComplete, spanDays } = useMemo(() => {
     const maxD = rows.length ? rows.reduce((m, r) => (r.date > m ? r.date : m), rows[0].date) : iso(new Date());
-    const e = new Date(maxD + "T00:00:00");
-    const s = addDays(e, -(days - 1));
+    const minD = rows.length ? rows.reduce((m, r) => (r.date < m ? r.date : m), rows[0].date) : maxD;
+
+    // Presets stop at yesterday: today is still accumulating, and a partial
+    // day drags averages down and makes every comparison look worse.
+    const yest = iso(addDays(new Date(), -1));
+    let lastComplete = maxD <= yest ? maxD : yest;
+    // Unless there is no complete day yet (brand new account), in which case
+    // showing today beats showing nothing.
+    if (lastComplete < minD) lastComplete = maxD;
+
+    let s, e;
+    if (custom?.from && custom?.to) {
+      // Tolerate the dates being entered in either order.
+      s = custom.from <= custom.to ? custom.from : custom.to;
+      e = custom.from <= custom.to ? custom.to : custom.from;
+    } else {
+      e = lastComplete;
+      s = iso(addDays(new Date(lastComplete + "T00:00:00"), -(days - 1)));
+    }
+
+    const sD = new Date(s + "T00:00:00");
+    const span = Math.max(1, Math.round((new Date(e + "T00:00:00") - sD) / 86400000) + 1);
+
     return {
+      minDate: minD,
       maxDate: maxD,
-      end: iso(e),
-      start: iso(s),
-      prevEnd: iso(addDays(s, -1)),
-      prevStart: iso(addDays(s, -days)),
+      lastComplete,
+      start: s,
+      end: e,
+      spanDays: span,
+      // Comparison window is the same length, ending the day before this one starts.
+      prevEnd: iso(addDays(sD, -1)),
+      prevStart: iso(addDays(sD, -span)),
     };
-  }, [rows, days]);
+  }, [rows, days, custom]);
 
   /* ---- option lists (dependent) ---- */
   const clientOpts = useMemo(() => uniq(rows.map((r) => r.client)), [rows]);
@@ -790,13 +928,13 @@ export default function TelehealthDashboard() {
 
   return (
     <div className="tvd">
-      <style>{CSS}</style>
+      <style>{CSS(THEME, VITALS.length)}</style>
 
       <div className="wrap">
         <header className="mast">
           <div>
-            <div className="eyebrow">Paid media · telehealth portfolio</div>
-            <h1>Ghost Growth Dashboard</h1>
+            <div className="eyebrow">{BRAND.eyebrow}</div>
+            <h1>{BRAND.title}</h1>
             <div className="sub">
               {start} → {end} · compared with {prevStart} → {prevEnd}
             </div>
@@ -821,12 +959,48 @@ export default function TelehealthDashboard() {
       <div className="rail">
         <div className="wrap rail-inner">
           <div className="seg" role="group" aria-label="Date range">
-            {[7, 14, 30, 90].map((d) => (
-              <button key={d} aria-pressed={days === d} onClick={() => setDays(d)}>
+            {DATE_PRESETS.map((d) => (
+              <button
+                key={d}
+                aria-pressed={!custom && days === d}
+                onClick={() => { setCustom(null); setDays(d); }}
+              >
                 {d}d
               </button>
             ))}
+            <button
+              aria-pressed={!!custom}
+              onClick={() => setCustom(custom ? null : { from: start, to: end })}
+            >
+              Custom
+            </button>
           </div>
+
+          {custom && (
+            <span className="dates">
+              <input
+                type="date"
+                aria-label="Range start"
+                value={custom.from}
+                min={minDate}
+                max={maxDate}
+                onChange={(e) => e.target.value && setCustom((c) => ({ ...c, from: e.target.value }))}
+              />
+              <span className="to">to</span>
+              <input
+                type="date"
+                aria-label="Range end"
+                value={custom.to}
+                min={minDate}
+                max={maxDate}
+                onChange={(e) => e.target.value && setCustom((c) => ({ ...c, to: e.target.value }))}
+              />
+              <span className="seg">
+                <button onClick={() => setCustom(monthRange(lastComplete, 0))}>This month</button>
+                <button onClick={() => setCustom(monthRange(lastComplete, -1))}>Last month</button>
+              </span>
+            </span>
+          )}
           <MultiSelect label="Client" options={clientOpts} selected={clients} onChange={setClients} />
           <MultiSelect label="Ad account" options={accountOpts} selected={accounts} onChange={setAccounts} />
           <MultiSelect label="Platform" options={platformOpts} selected={platforms} onChange={setPlatforms} />
@@ -845,6 +1019,11 @@ export default function TelehealthDashboard() {
             </button>
           )}
           <div className="spacer" />
+          {custom && start < minDate && (
+            <span className="rail-note" style={{ color: "var(--alert)" }}>
+              No data before {minDate}
+            </span>
+          )}
           <span className="rail-note">{filtered.length.toLocaleString()} rows in view</span>
         </div>
       </div>
@@ -882,11 +1061,11 @@ export default function TelehealthDashboard() {
                   <div className="vital-label">{v.label}</div>
                   <div className="vital-row">
                     <div className="vital-val">{v.fmt(totals[v.key])}</div>
-                    <Spark data={sparkFor(v.key)} color={v.lowerBetter ? "#5B3E72" : "#0F7B8A"} />
+                    <Spark data={sparkFor(v.key)} color={v.lowerBetter ? THEME.accent2 : THEME.accent} />
                   </div>
                   <div className="vital-foot">
                     <Delta cur={totals[v.key]} prev={prevTotals[v.key]} lowerBetter={v.lowerBetter} />
-                    <span>vs prior {days}d</span>
+                    <span>vs prior {spanDays}d</span>
                   </div>
                 </div>
               ))}
@@ -911,18 +1090,18 @@ export default function TelehealthDashboard() {
               <div className="panel-body" style={{ height: 288 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={series} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
-                    <CartesianGrid stroke="#E4E9EC" vertical={false} />
+                    <CartesianGrid stroke={THEME.lineSoft} vertical={false} />
                     <XAxis
                       dataKey="bucket"
-                      tick={{ fill: "#5C7080", fontSize: 11, fontFamily: "IBM Plex Mono, monospace" }}
+                      tick={{ fill: THEME.muted, fontSize: 11, fontFamily: THEME.fontMono }}
                       tickLine={false}
-                      axisLine={{ stroke: "#CBD5DB" }}
+                      axisLine={{ stroke: THEME.line }}
                       tickFormatter={(v) => v.slice(5)}
                       minTickGap={26}
                     />
                     <YAxis
                       yAxisId="l"
-                      tick={{ fill: "#5C7080", fontSize: 11, fontFamily: "IBM Plex Mono, monospace" }}
+                      tick={{ fill: THEME.muted, fontSize: 11, fontFamily: THEME.fontMono }}
                       tickLine={false}
                       axisLine={false}
                       width={52}
@@ -931,7 +1110,7 @@ export default function TelehealthDashboard() {
                     <YAxis
                       yAxisId="r"
                       orientation="right"
-                      tick={{ fill: "#5B3E72", fontSize: 11, fontFamily: "IBM Plex Mono, monospace" }}
+                      tick={{ fill: THEME.accent2, fontSize: 11, fontFamily: THEME.fontMono }}
                       tickLine={false}
                       axisLine={false}
                       width={52}
@@ -939,24 +1118,24 @@ export default function TelehealthDashboard() {
                     />
                     <Tooltip
                       contentStyle={{
-                        background: "#FBFCFD",
-                        border: "1px solid #CBD5DB",
+                        background: THEME.panel,
+                        border: `1px solid ${THEME.line}`,
                         borderRadius: 2,
-                        fontFamily: "IBM Plex Mono, monospace",
+                        fontFamily: THEME.fontMono,
                         fontSize: 12,
                       }}
-                      labelStyle={{ color: "#5C7080", fontSize: 11 }}
+                      labelStyle={{ color: THEME.muted, fontSize: 11 }}
                       formatter={(val, name) =>
                         name === tm.lineLabel ? tm.lineFmt(val) : name === "Spend" ? usd(val) : num(val)
                       }
                     />
-                    <Bar yAxisId="l" dataKey={tm.bar} name={tm.barLabel} fill="#0F7B8A" fillOpacity={0.68} maxBarSize={26} />
+                    <Bar yAxisId="l" dataKey={tm.bar} name={tm.barLabel} fill={THEME.accent} fillOpacity={0.68} maxBarSize={26} />
                     <Line
                       yAxisId="r"
                       type="monotone"
                       dataKey={tm.line}
                       name={tm.lineLabel}
-                      stroke="#5B3E72"
+                      stroke={THEME.accent2}
                       strokeWidth={1.8}
                       dot={false}
                     />
@@ -970,7 +1149,7 @@ export default function TelehealthDashboard() {
               <div className="panel-head">
                 <div className="panel-title">Breakdown</div>
                 <div className="seg">
-                  {["client", "account", "platform", "campaign"].map((g) => (
+                  {GROUP_OPTIONS.map((g) => (
                     <button key={g} aria-pressed={groupBy === g} onClick={() => { setGroupBy(g); setOpenRows([]); }}>
                       {g === "account" ? "Ad account" : g[0].toUpperCase() + g.slice(1)}
                     </button>
@@ -1044,7 +1223,37 @@ export default function TelehealthDashboard() {
           </>
         )}
 
-        
+       
+
+            {csvError && <div className="warn">{csvError}</div>}
+
+            {rawCsv && map && (
+              <div className="map-grid">
+                {FIELDS.map((f) => (
+                  <div className="map-item" key={f.key} data-req={f.req}>
+                    <label htmlFor={"map-" + f.key}>
+                      {f.label}
+                      {f.req ? " ·  required" : ""}
+                    </label>
+                    <select
+                      id={"map-" + f.key}
+                      value={map[f.key] || ""}
+                      data-empty={!map[f.key]}
+                      onChange={(e) => remap(f.key, e.target.value)}
+                    >
+                      <option value="">
+                        {TEXT_FIELDS.includes(f.key) ? "Not in file" : "Not in file (counts as 0)"}
+                      </option>
+                      {rawCsv.headers.map((h) => (
+                        <option key={h} value={h}>{h}</option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
