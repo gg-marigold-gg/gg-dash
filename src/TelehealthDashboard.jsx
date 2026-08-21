@@ -358,42 +358,7 @@ const CLIENTS = [
       { name: "Vireo · TikTok", platform: "TikTok", campaigns: ["Creator Whitelist"] },
     ],
   },
-  {
-    name: "Nomad Men's Health",
-    scale: 1.25,
-    aov: 132,
-    accounts: [
-      { name: "Nomad · Meta Acquisition", platform: "Meta", campaigns: ["ED Broad", "Hair Retargeting"] },
-      { name: "Nomad · Google Search", platform: "Google", campaigns: ["Brand", "Competitor Conquest"] },
-    ],
-  },
-  {
-    name: "Calla Mental Health",
-    scale: 1.0,
-    aov: 96,
-    accounts: [
-      { name: "Calla · Meta Core", platform: "Meta", campaigns: ["Therapy Intake", "Anxiety Creative Test"] },
-      { name: "Calla · Google Search", platform: "Google", campaigns: ["Online Therapy NB"] },
-    ],
-  },
-  {
-    name: "Derma Direct",
-    scale: 0.7,
-    aov: 78,
-    accounts: [
-      { name: "Derma · Meta Retargeting", platform: "Meta", campaigns: ["Acne Rx Retarget"] },
-      { name: "Derma · TikTok Creators", platform: "TikTok", campaigns: ["Before/After UGC", "Derm POV"] },
-    ],
-  },
-  {
-    name: "Solace Hormone Health",
-    scale: 0.85,
-    aov: 184,
-    accounts: [
-      { name: "Solace · Meta Core", platform: "Meta", campaigns: ["Perimenopause Broad"] },
-      { name: "Solace · Google Search", platform: "Google", campaigns: ["HRT Non-Brand", "Brand"] },
-    ],
-  },
+  
 ];
 
 const PLAT = {
