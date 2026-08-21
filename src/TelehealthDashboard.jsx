@@ -1225,6 +1225,21 @@ export default function TelehealthDashboard() {
 
        
 
+            {/* Data source */}
+        <section className="panel">
+          <div className="panel-head">
+            <div className="panel-title">Data source</div>
+          </div>
+          <div className="panel-body">
+            <div className="src">
+              <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>Load a CSV</button>
+              <button className="btn" onClick={useSample}>Use sample data</button>
+              <input ref={fileRef} type="file" accept=".csv,text/csv" onChange={onFile} style={{ display: "none" }} />
+              <span className="note">
+                One row per day per campaign works best. Columns are matched by name — correct any of them below.
+              </span>
+            </div>
+
             {csvError && <div className="warn">{csvError}</div>}
 
             {rawCsv && map && (
